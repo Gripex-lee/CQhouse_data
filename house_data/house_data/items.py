@@ -24,6 +24,7 @@ class HouseDataItem(scrapy.Item):
     dianti = scrapy.Field()
     name = scrapy.Field()
     location = scrapy.Field()
+    rail = scrapy.Field()
 
 
     # wuye_price = scrapy.Field()

@@ -25,7 +25,12 @@ class CqhouseSpider(scrapy.Spider):
         item["room_number"] = re.findall(r"\d+",response.xpath('//div[@class="room"]/div[@class="mainInfo"]/text()').extract_first())[0]
         item["living_room_number"] = re.findall(r"\d+",response.xpath('//div[@class="room"]/div[@class="mainInfo"]/text()').extract_first())[1]
         item["high"] = re.findall(r"[\d.]+",response.xpath('//div[@class="room"]/div[@class="subInfo"]/text()').extract_first().split("/")[1])[0]
-        item["house_toward"] = response.xpath('//div[@class="type"]/div[@class="mainInfo"]/text()').extract_first()
+        
+        if len(response.xpath('//div[@class="type"]/div[@class="mainInfo"]/text()').extract_first()) >= 3:
+            item["house_toward"] = response.xpath('//div[@class="type"]/div[@class="mainInfo"]/text()').extract_first().split(" ")[0]
+        else:
+            item["house_toward"] = response.xpath('//div[@class="type"]/div[@class="mainInfo"]/text()').extract_first()
+        
         if re.findall(r".*?/.*?",response.xpath('//div[@class="type"]/div[@class="subInfo"]/text()').extract_first()):
             item["house_type"] = response.xpath('//div[@class="type"]/div[@class="subInfo"]/text()').extract_first().split("/")[1]
         else:
@@ -41,4 +46,8 @@ class CqhouseSpider(scrapy.Spider):
         item["dianti"] = response.xpath('//*[@id="introduction"]/div/div/div[1]/div[2]/ul/li[11]/text()').extract_first()
         item["name"] = response.xpath('/html/body/div[5]/div[2]/div[4]/div[1]/a[1]/text()').extract_first()
         item["location"] = response.xpath('/html/body/div[5]/div[2]/div[4]/div[2]/span[2]/a[1]/text()').extract_first()
+        if response.xpath('//div[@class="areaName"]/a[@title]/text()').extract_first():
+            item["rail"] = "是"
+        else:
+            item["rail"] = "否"
         yield item
