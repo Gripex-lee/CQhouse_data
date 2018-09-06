@@ -15,7 +15,7 @@ class MysqlPipeline(object):
     插入mysql数据库
     '''
     def __init__(self):
-        self.conn =pymysql.connect(host='localhost',port=3306,user='root',passwd='liwenwu.610',db='cqhouse',use_unicode=True, charset="utf8")
+        self.conn =pymysql.connect(host='localhost',port=3306,user='root',passwd='123456',db='cqhouse',use_unicode=True, charset="utf8")
         self.cursor = self.conn.cursor()
 
     def process_item(self,item,spider):
