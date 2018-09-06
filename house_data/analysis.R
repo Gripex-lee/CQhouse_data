@@ -1,22 +1,22 @@
 library(RMySQL)
 library(mice)
 
-# Á¬½ÓÊı¾İ¿â'cqhouse'
+# è¿æ¥æ•°æ®åº“'cqhouse'
 con1=dbConnect(RMySQL::MySQL(),
                dbname='cqhouse',
                username='root',
-               password='liwenwu.610',
+               password='123456',
                host
                ='localhost')
-# ÉèÖÃ±àÂë½â¾öÂÒÂëÎÊÌâ
+# è®¾ç½®ç¼–ç è§£å†³ä¹±ç é—®é¢˜
 dbSendQuery(con1,"SET NAMES gbk")
 
-# ´Ó'cqhouse'µÄ'house_data'ÖĞµ¼ÈëÊı¾İ
+# ä»'cqhouse'çš„'house_data'ä¸­å¯¼å…¥æ•°æ®
 res = dbSendQuery(con1,"select * from house_data;")
 mydata = dbFetch(res,n=-1)
 
 head(mydata)
-# ĞŞ¸ÄÊı¾İ
+# ä¿®æ”¹æ•°æ®
 # fix(mydata)
 colnames(mydata) = c("id","price","total_price","bedroom","living_room","floor","toward",
                       "type","size","build_year","building_type","elector","Community_name","location","rail")
@@ -37,26 +37,26 @@ mydata$location = as.factor(mydata$location)
 mydata$rail = as.factor(mydata$rail)
 
 data = mydata[,!names(mydata) %in% c("id","Community_name")]
-data$elector[which(data$elector == "ÔİÎŞÊı¾İ")] = NA
-data$type[which(data$type == "ÆäËû")] = NA
+data$elector[which(data$elector == "æš‚æ— æ•°æ®")] = NA
+data$type[which(data$type == "å…¶ä»–")] = NA
 
 summary(data)
-# ²é¿´È±Ê§Öµ
+# æŸ¥çœ‹ç¼ºå¤±å€¼
 md.pattern(data)
 
-# ´¦ÀíÈ±Ê§Öµ
-# build_yearµÄÈ±Ê§Öµ£¨Ëæ»úÉ­ÁÖ£©
+# å¤„ç†ç¼ºå¤±å€¼
+# build_yearçš„ç¼ºå¤±å€¼ï¼ˆéšæœºæ£®æ—ï¼‰
 mice_mod <- mice(data[, !names(data) %in% c('id','bedroom','living_room','elector','price','type')],
-                 method='rf')  #rfÎªrandomForest
+                 method='rf')  #rfä¸ºrandomForest
 mice_output <- complete(mice_mod)
 data$build_year <- mice_output$build_year
 
-# electorµÄÈ±Ê§Öµ ×î½üÁÚ²å²¹KNN
+# electorçš„ç¼ºå¤±å€¼ æœ€è¿‘é‚»æ’è¡¥KNN
 require(DMwR)
 knnOutput <- knnImputation(data[,!names(data) %in% c('id','price','bedroom','living_room','type','size','building_type')],meth = "weighAvg") 
 data$elector <- knnOutput$elector
 
-# typeµÄÈ±Ê§Öµ
+# typeçš„ç¼ºå¤±å€¼
 knnOutput <- knnImputation(data[,!names(data) %in% c('id','price','bedroom','living_room','size','elector')],meth = "weighAvg") 
 data$type <- knnOutput$type
 
@@ -69,10 +69,10 @@ attach(data)
 library(ggplot2)
 library(corrplot)
 
-# priceÖ±·½Í¼
+# priceç›´æ–¹å›¾
 ggplot(data,aes(x=price))+geom_histogram(binwidth = 200, fill = "blue", colour = "grey")
 
-# ¼Û¸ñ¹ØÓÚµçÌİÔÚ×°ĞŞ×´¿ö·ÖÀàÏÂµÄÏäÏßÍ¼
+# ä»·æ ¼å…³äºç”µæ¢¯åœ¨è£…ä¿®çŠ¶å†µåˆ†ç±»ä¸‹çš„ç®±çº¿å›¾
 ggplot(data,aes(x=elector,y=price))+
   geom_boxplot()+
   facet_wrap(~type,scales = "free")
@@ -81,13 +81,13 @@ ggplot(data,aes(x=rail,y=price))+
   geom_boxplot()+
   facet_wrap(~type,scales = "free")
 
-# ¼Û¸ñ¹ØÓÚ×°ĞŞ×´¿ö
+# ä»·æ ¼å…³äºè£…ä¿®çŠ¶å†µ
 ggplot(data,aes(x=type,y=price))+geom_boxplot()
 
-# ¼Û¸ñ¹ØÓÚµØµã
+# ä»·æ ¼å…³äºåœ°ç‚¹
 ggplot(data,aes(x=location,y=price))+geom_boxplot()
 
-# ¹ØÓÚ³¯Ïò
+# å…³äºæœå‘
 ggplot(data,aes(x=toward,y=price))+geom_boxplot()
 
 corr <- cor(data[,c('price','bedroom','living_room','floor','size','build_year')])
@@ -95,12 +95,12 @@ corrplot(corr = corr,order="AOE",type="upper",tl.pos="tp")
 corrplot(corr = corr, add=TRUE,type="lower", method="number",order="AOE", col="black",diag=FALSE,tl.pos="n", cl.pos="n")
 
 
-# Ä£ĞÍ1
+# æ¨¡å‹1
 lm1=lm(price~bedroom+living_room+floor+type+size+build_year+building_type+elector+location+toward+rail,data)
 summary(lm1)
 anova(lm1)
 
-# Ä£ĞÍ2
+# æ¨¡å‹2
 lm2=lm(price~bedroom+type+size+build_year+elector+location+rail,data)
 summary(lm2)
 anova(lm2)
